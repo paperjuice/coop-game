@@ -4,7 +4,7 @@ defmodule CoopGame.GameState.Loadout do
   @type weapon :: %Weapon{} | nil
 
   defstruct [
-    left_hand: weapon,
-    right_hand: weapon
+    right_hand: nil,
+    left_hand: %Weapon{}
   ]
 end

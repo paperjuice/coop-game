@@ -1,5 +1,5 @@
 defmodule CoopGame.GameState.PlayerSts do
-
+  alias CoopGame.GameState.Loadout
   defstruct [
     level: 1,
     max_xp: 50,
@@ -7,7 +7,7 @@ defmodule CoopGame.GameState.PlayerSts do
     max_hp: 50,
     current_hp: 50,
     special_abilities: [],
-    loadout: [],
+    loadout: %Loadout{},
     inventory: []
   ]
 end
