@@ -6,8 +6,8 @@ defmodule CoopGame.GameState.PlayerSts do
     current_xp: 0,
     max_hp: 50,
     current_hp: 50,
-    #TODO: special abilities and gear struct added
     special_abilities: [],
-    gear: []
+    loadout: [],
+    inventory: []
   ]
 end
