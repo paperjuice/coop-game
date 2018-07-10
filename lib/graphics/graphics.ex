@@ -33,7 +33,7 @@ defmodule CoopGame.Graphics do
     #
     #
     #
-    #  Type: def register(name, password)
+    #  Type: CoopGame.Client.Api.register(name, password)
     #
     #
     #
