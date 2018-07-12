@@ -22,3 +22,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 coop_game-*.tar
 
+#vim temp files
+*.swp
+
+#Mnesia directory
+Mnesia.*

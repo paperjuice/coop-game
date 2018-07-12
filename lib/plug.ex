@@ -13,7 +13,12 @@ defmodule CoopGame.Plug do
   end
 
   post "/register" do
-    IO.inspect(conn, label: Hello)
+    %{ "name" => name,
+      "password" => password
+    } = conn.body_params
+
+    Storage.add_new_players(name, password)
+
     send_resp(conn, 200, "nana")
   end
 
