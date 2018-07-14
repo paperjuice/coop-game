@@ -16,25 +16,74 @@ defmodule CoopGame.Model.Storage do
     create_table(@player_table, @player_fields)
   end
 
-
-  @spec add_new_player(String.t(), String.t())
+  @spec add_new_player(Plug.Conn.t, String.t(), String.t())
     :: {:atomic, :ok} | {:abort, String.t()}
-  def add_new_player(name, password) do
+  def add_new_player(conn, name, password) do
     id = Mnesia.table_info(Player, :size)
     encoded_password = Base.encode64(password)
     token = System.os_time()
 
+    resp =
     if player_exists?(name) do
-      IO.puts("Player exists")
+      %{"type" => :error,
+        "http_code" => 409,
+        "message" => "Player_already_exists"
+      }
     else
       Mnesia.transaction(fn ->
-        Mnesia.write({Player, id + 1, name, encoded_password, token})
+        Mnesia.write({@player_table, id + 1, name, encoded_password, token})
       end)
+
+        %{"type" => :success,
+          "http_code" => 200,
+          "message" => "Successfully registered"
+        }
     end
 
+    Map.put(conn, :resp_body, resp)
   end
 
+  def login_player(conn, name, password) do
+    decode_password = Base.encode64(password)
 
+    {:atomic, response} =
+      Mnesia.transaction(fn ->
+        Mnesia.match_object({@player_table, :_, name, decode_password, :_})
+      end)
+
+    case response do
+      [] ->
+        Map.put(
+          conn,
+          :resp_body,
+          %{"type" => :error,
+            "http_code" => 404,
+            "message" => "User doesn't exist!"
+          }
+        )
+      _ ->
+        Map.put(
+          conn,
+          :resp_body,
+          %{"type" => :ok,
+            "http_code" => 200,
+            "message" => "Login successfully"
+          }
+        )
+    end
+  end
+
+  @spec player_exists?(String.t()) :: boolean()
+  def player_exists?(name) do
+    {:atomic, response} =
+      Mnesia.transaction(fn ->
+        Mnesia.match_object({@player_table, :_, name, :_, :_})
+      end)
+    case response do
+      [] -> false
+      _ -> true
+    end
+  end
 
 # =================== #
 #       PRIVATE       #
@@ -49,20 +98,9 @@ defmodule CoopGame.Model.Storage do
 
       case response do
         {:aborted, error} ->
-          IO.puts("Mnesia exit with the following error: #{error}")
+          IO.puts("Mnesia exit with the following error: #{inspect(error)}")
         {:atomic, _msg} -> IO.puts("Mnesia started successfully")
       end
-  end
-
-  defp player_exists?(name) do
-    {:atomic, response} =
-      Mnesia.transaction(fn ->
-        Mnesia.match_object({Player, :_, name, :_, :_})
-      end)
-    case response do
-      [] -> false
-      _ -> true
-    end
   end
 
 end
