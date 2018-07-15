@@ -1,7 +1,7 @@
-defmodule CoopGame.Client.Api do
+defmodule Client.Api do
   @moduledoc false
 
-  alias CoopGraphics
+  alias Client.Graphics
 
   @url "http://localhost:9999"
 

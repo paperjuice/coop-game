@@ -14,7 +14,7 @@ defmodule CoopGame.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :httpoison],
+      extra_applications: [:logger],
       mod: {CoopGame.Application, []}
     ]
   end
@@ -24,8 +24,7 @@ defmodule CoopGame.MixProject do
     [
       {:plug, "~>1.6.0"},
       {:cowboy, "~>2.4"},
-      {:poison, ">=0.0.0"},
-      {:httpoison, "~>1.2.0"}
+      {:poison, ">=0.0.0"}
     ]
   end
 end

@@ -14,13 +14,9 @@ defmodule CoopGame.Application do
       }
     ]
 
-
     #start Mnesia
     Storage.init()
 
-
     Supervisor.start_link(children, strategy: :one_for_one)
   end
-
-
 end
