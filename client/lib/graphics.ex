@@ -1,7 +1,14 @@
 defmodule Client.Graphics do
 
 
-  def main_screen() do
+  def main_screen(is_registered?) do
+    clear_screen()
+
+    register =
+    if is_registered?,
+    do: "#",
+    else: "#  1. Client.Api.register(<name>, <password>)"
+
     IO.puts("""
     ########################################
     #
@@ -12,31 +19,79 @@ defmodule Client.Graphics do
     #--------------
     #  ACTIONS
     #--------------
-    #  1. Client.Api.register(<name>, <password>)
+    #{register}
     #  2. Client.Api.login(<name>, <password>)
     #
     """)
-    clear_screen()
   end
 
-  def second_screen() do
+  def register_response(response) do
+    clear_screen()
+    case response do
+      200 -> " # REGISTERED SUCCESSFULLY!"
+      409 -> " # REGISTER FAILED :("
+    end
     IO.puts( """
     ########################################
     #
     #
-    #  COOP_GAME
+    #
     #
     #
     #--------------
-    # ndsfkds 
+    # REGISTERED SUCCESSFULLY!
     #--------------
-    #  1. Client.Api.register(<name>, <password>)
-    #  2. Client.Api.login(<name>, <password>)
+    #
+    # wait a sec
     #
     """)
-    clear_screen()
+
+    Process.sleep(2500)
+    main_screen(true)
   end
 
+  def login_response(response) do
+    clear_screen()
+    case response do
+      200 -> " # LOGIN SUCCESSFULLY!"
+      409 -> " # LOGIN FAILED :("
+    end
+    IO.puts( """
+    ########################################
+    #
+    #
+    #
+    #
+    #
+    #--------------
+    # LOGIN SUCCESSFULLY!
+    #--------------
+    #
+    # wait a sec
+    #
+    """)
+
+    Process.sleep(2500)
+    main_menu()
+  end
+
+  def main_menu() do
+    clear_screen()
+    IO.puts( """
+    ########################################
+    #
+    #
+    #
+    #--------------
+    # ACTIONS:
+    #--------------
+    # 1. Find room
+    # 2. Create room
+    # 3. Join Room
+    # 4. Inventory
+    #
+    """)
+  end
 
 
   #--------------
@@ -49,7 +104,7 @@ defmodule Client.Graphics do
       |> String.trim()
       |> String.to_integer
 
-    Enum.each(1..(lines-15), fn _a ->
+    Enum.each(1..lines, fn _a ->
       IO.puts("")
     end)
   end
