@@ -1,13 +1,27 @@
 defmodule Client.Graphics do
+  @type code ::
+          :credential_screen
+          | :register_response
+          | :login_response
+          | :main_menu
 
+  @spec match_graphics(code()) :: String.t()
+  def match_graphics(code, additional_opts \\ nil) do
+    case code do
+      :credential_screen -> main_screen(additional_opts)
+      :register_response -> register_response(additional_opts)
+      :login_response    -> login_response(additional_opts)
+      :main_menu         -> main_menu()
+    end
 
-  def main_screen(is_registered?) do
     clear_screen()
+  end
 
+  defp main_screen(is_registered?) do
     register =
-    if is_registered?,
-    do: "#",
-    else: "#  1. Client.Api.register(<name>, <password>)"
+      if is_registered?,
+        do: "#",
+        else: "#  1. Client.Api.register(<name>, <password>)"
 
     IO.puts("""
     ########################################
@@ -25,13 +39,13 @@ defmodule Client.Graphics do
     """)
   end
 
-  def register_response(response) do
-    clear_screen()
+  defp register_response(response) do
     case response do
       200 -> " # REGISTERED SUCCESSFULLY!"
       409 -> " # REGISTER FAILED :("
     end
-    IO.puts( """
+
+    IO.puts("""
     ########################################
     #
     #
@@ -45,18 +59,18 @@ defmodule Client.Graphics do
     # wait a sec
     #
     """)
-
+    clear_screen()
     Process.sleep(2500)
     main_screen(true)
   end
 
-  def login_response(response) do
-    clear_screen()
+  defp login_response(response) do
     case response do
       200 -> " # LOGIN SUCCESSFULLY!"
       409 -> " # LOGIN FAILED :("
     end
-    IO.puts( """
+
+    IO.puts("""
     ########################################
     #
     #
@@ -71,13 +85,13 @@ defmodule Client.Graphics do
     #
     """)
 
+    clear_screen()
     Process.sleep(2500)
     main_menu()
   end
 
-  def main_menu() do
-    clear_screen()
-    IO.puts( """
+  defp main_menu() do
+    IO.puts("""
     ########################################
     #
     #
@@ -93,18 +107,18 @@ defmodule Client.Graphics do
     """)
   end
 
-
-  #--------------
+  # --------------
   # PRIVATE
-  #--------------
+  # --------------
   defp clear_screen do
     {string, _} = System.cmd("tput", ["lines"])
+
     lines =
       string
       |> String.trim()
-      |> String.to_integer
+      |> String.to_integer()
 
-    Enum.each(1..lines, fn _a ->
+    Enum.each(1..(lines-16), fn _a ->
       IO.puts("")
     end)
   end
