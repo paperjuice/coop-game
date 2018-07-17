@@ -2,6 +2,7 @@ defmodule Client.Api do
   @moduledoc false
 
   alias Client.Graphics
+  alias Client.Model.Credentials
 
   @url "http://localhost:9999"
 
@@ -11,9 +12,9 @@ defmodule Client.Api do
   @content_type {"Content-Type", "application/json"}
 
   def register(name, password) do
-    request = %{
-      "name" => name,
-      "password" => password
+    request = %Credentials{
+      name: name,
+      password: password
     }
 
     parse_request = Poison.encode!(request)
@@ -23,16 +24,15 @@ defmodule Client.Api do
     case response.status_code do
       200 ->
         Graphics.match_graphics(:register_response, 200)
-
       409 ->
         Graphics.match_graphics(:register_response, 409)
     end
   end
 
   def login(name, password) do
-    request = %{
-      "name" => name,
-      "password" => password
+    request = %Credentials{
+      name: name,
+      password: password
     }
 
     parse_request = Poison.encode!(request)

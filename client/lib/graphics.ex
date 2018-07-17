@@ -10,8 +10,8 @@ defmodule Client.Graphics do
     case code do
       :credential_screen -> main_screen(additional_opts)
       :register_response -> register_response(additional_opts)
-      :login_response    -> login_response(additional_opts)
-      :main_menu         -> main_menu()
+      :login_response -> login_response(additional_opts)
+      :main_menu -> main_menu()
     end
 
     clear_screen()
@@ -59,6 +59,7 @@ defmodule Client.Graphics do
     # wait a sec
     #
     """)
+
     clear_screen()
     Process.sleep(2500)
     main_screen(true)
@@ -118,7 +119,7 @@ defmodule Client.Graphics do
       |> String.trim()
       |> String.to_integer()
 
-    Enum.each(1..(lines-16), fn _a ->
+    Enum.each(1..(lines - 16), fn _a ->
       IO.puts("")
     end)
   end
