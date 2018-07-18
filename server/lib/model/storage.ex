@@ -1,12 +1,19 @@
 defmodule CoopGame.Model.Storage do
   alias :mnesia, as: Mnesia
 
+  alias CoopGame.Structs.{
+    Player,
+    Character,
+    Weapon
+  }
+
   @player_table Player
   @player_fields [
     :id,
     :name,
     :password,
-    :token
+    :token,
+    :joined_room
   ]
 
   @character_table Character
@@ -52,19 +59,19 @@ defmodule CoopGame.Model.Storage do
   @spec login_player(String.t(), String.t())
     :: {:atomic, :ok} | {:abort, String.t()}
   def login_player(name, password) do
-    decode_password = Base.encode64(password)
+    decode_pass = Base.encode64(password)
+    player = find_player(name, decode_pass)
 
-    {:atomic, response} =
-      Mnesia.transaction(fn ->
-        Mnesia.match_object({@player_table, :_, name, decode_password, :_})
-      end)
-
-    case response do
-      [] ->
-        {:error, "user_doesnt_exist"}
-      _ ->
-        {:ok, "login_ok"}
-    end
+      case player do
+        [] ->
+          {:error, "user_doesnt_exist"}
+        _ ->
+          character = find_character_by_player_id(1)
+          #TODO: get weapon id
+          weapon = find_weapon_by_id(1)
+          build_ok_response(hd(player), character, weapon)
+          {:ok, "login_ok"}
+      end
   end
 
   @spec player_exists?(String.t()) :: boolean()
@@ -78,6 +85,8 @@ defmodule CoopGame.Model.Storage do
       _ -> true
     end
   end
+
+
 
 # =================== #
 #       PRIVATE       #
@@ -105,7 +114,7 @@ defmodule CoopGame.Model.Storage do
 
       #add player sts
       Mnesia.transaction(fn ->
-        Mnesia.write({@player_table, id + 1, name, encoded_password, token})
+        Mnesia.write({@player_table, id + 1, name, encoded_password, token, 0})
       end)
 
       #add player character entry
@@ -129,6 +138,38 @@ defmodule CoopGame.Model.Storage do
 
   defp add_initial_weapon do
     Mnesia.dirty_write({@weapon_table, 1, "Wooden stick", 3, 5})
-    |> IO.inspect(label: AddInitialWeapon)
+  end
+
+  defp find_player(name, pass) do
+    {:atomic, player} =
+      Mnesia.transaction(fn ->
+        Mnesia.match_object({@player_table, :_, name, pass, :_, :_})
+      end)
+
+    player
+  end
+
+  defp find_character_by_player_id(id) do
+    {:atomic, character} =
+      Mnesia.transaction(fn ->
+        Mnesia.match_object({@character_table, id, :_, :_, :_, :_, :_, :_, :_})
+      end)
+
+    hd(character)
+  end
+
+  defp find_weapon_by_id(id) do
+    {:atomic, weapon} =
+      Mnesia.transaction(fn ->
+        Mnesia.match_object({@weapon_table, id, :_, :_, :_})
+      end)
+
+    hd(weapon)
+  end
+
+  defp build_ok_response(player, character, weapon) do
+    IO.inspect(player, label: Player)
+    IO.inspect(character, label: Character)
+    IO.inspect(weapon, label: Weapon)
   end
 end
