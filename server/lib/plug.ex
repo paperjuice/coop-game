@@ -20,7 +20,7 @@ defmodule CoopGame.Plug do
       "password" => password
     } = conn.body_params
 
-    resp = Storage.register_player(conn, name, password)
+    resp = Storage.register_player(name, password)
 
     conn =
       case resp do
@@ -42,7 +42,7 @@ defmodule CoopGame.Plug do
     } = conn.body_params
 
 
-    resp = Storage.login_player(conn, name, password)
+    resp = Storage.login_player(name, password)
 
     conn =
       case resp do
