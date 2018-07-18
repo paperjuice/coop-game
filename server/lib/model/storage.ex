@@ -16,31 +16,23 @@ defmodule CoopGame.Model.Storage do
     create_table(@player_table, @player_fields)
   end
 
-  @spec add_new_player(Plug.Conn.t, String.t(), String.t())
+  @spec register_player(Plug.Conn.t, String.t(), String.t())
     :: {:atomic, :ok} | {:abort, String.t()}
-  def add_new_player(conn, name, password) do
+  def register_player(conn, name, password) do
     id = Mnesia.table_info(Player, :size)
     encoded_password = Base.encode64(password)
     token = System.os_time()
 
     resp =
     if player_exists?(name) do
-      %{"type" => :error,
-        "http_code" => 409,
-        "message" => "Player_already_exists"
-      }
+      {:error, "player_exists"}
     else
       Mnesia.transaction(fn ->
         Mnesia.write({@player_table, id + 1, name, encoded_password, token})
       end)
 
-        %{"type" => :success,
-          "http_code" => 200,
-          "message" => "Successfully registered"
-        }
+      {:ok, "reg_ok"}
     end
-
-    Map.put(conn, :resp_body, resp)
   end
 
   def login_player(conn, name, password) do
@@ -53,23 +45,9 @@ defmodule CoopGame.Model.Storage do
 
     case response do
       [] ->
-        Map.put(
-          conn,
-          :resp_body,
-          %{"type" => :error,
-            "http_code" => 404,
-            "message" => "User doesn't exist!"
-          }
-        )
+        {:error, "user_doesnt_exist"}
       _ ->
-        Map.put(
-          conn,
-          :resp_body,
-          %{"type" => :ok,
-            "http_code" => 200,
-            "message" => "Login successfully"
-          }
-        )
+        {:ok, "login_ok"}
     end
   end
 

@@ -2,6 +2,7 @@ defmodule CoopGame.Plug do
   use Plug.Router
 
   alias CoopGame.Model.Storage
+  alias CoopGame.HttpResponse, as: HR
 
   plug :match
   plug Plug.Parsers, parsers: [:urlencoded, :json],
@@ -19,7 +20,15 @@ defmodule CoopGame.Plug do
       "password" => password
     } = conn.body_params
 
-    conn = Storage.add_new_player(conn, name, password)
+    resp = Storage.register_player(conn, name, password)
+
+    conn =
+      case resp do
+        {:ok, msg} ->
+          Map.put(conn, :resp_body, HR.match(msg))
+        {:error, error} ->
+          Map.put(conn, :resp_body, HR.match(error))
+      end
 
     send_resp(conn,
       conn.resp_body["http_code"],
@@ -32,7 +41,16 @@ defmodule CoopGame.Plug do
       "password" => password
     } = conn.body_params
 
-    conn = Storage.login_player(conn, name, password)
+
+    resp = Storage.login_player(conn, name, password)
+
+    conn =
+      case resp do
+        {:ok, msg} ->
+          Map.put(conn, :resp_body, HR.match(msg))
+        {:error, error} ->
+          Map.put(conn, :resp_body, HR.match(error))
+      end
 
     send_resp(conn,
       conn.resp_body["http_code"],
