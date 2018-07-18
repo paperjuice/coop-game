@@ -14,23 +14,23 @@ defmodule CoopGame.HttpResponse do
   # PRIVATE
   #-------------------
   defp player_already_exists do
-    %{type: :error,
-      http_code: 409,
-      message: "player_already_exists"
+    %{"type" => :error,
+      "http_code" => 409,
+      "message" => "player_already_exists"
     }
   end
 
   defp register_ok do
-    %{type: :ok,
-      http_code: 200,
-      message: "reg_ok"
+    %{"type" => :ok,
+      "http_code" => 200,
+      "message" => "reg_ok"
     }
   end
 
   defp login_ok do
-    %{type: :ok,
-      http_code: 200,
-      message: "reg_ok"
+    %{"type" => :ok,
+      "http_code" => 200,
+      "message" => "reg_ok"
     }
   end
 end
