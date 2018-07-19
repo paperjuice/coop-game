@@ -64,13 +64,22 @@ defmodule CoopGame.Model.Storage do
 
       case player do
         [] ->
-          {:error, "user_doesnt_exist"}
+          {:error, "player_doesnt_exist"}
         _ ->
           character = find_character_by_player_id(1)
           #TODO: get weapon id
+          player_list=
+            player
+            |> hd()
+            |> Tuple.to_list
+            |> tl()
+
+          player = build_structure(%{}, @player_fields, player_list)
           weapon = find_weapon_by_id(1)
-          build_ok_response(hd(player), character, weapon)
-          {:ok, "login_ok"}
+
+          message = build_ok_response(player, character, weapon)
+                    |> IO.inspect(label: MHEHE)
+          {:ok,"login_ok", message}
       end
   end
 
@@ -155,7 +164,13 @@ defmodule CoopGame.Model.Storage do
         Mnesia.match_object({@character_table, id, :_, :_, :_, :_, :_, :_, :_})
       end)
 
-    hd(character)
+    character_list=
+      character
+      |> hd()
+      |> Tuple.to_list
+      |> tl()
+
+    build_structure(%{}, @character_fields, character_list)
   end
 
   defp find_weapon_by_id(id) do
@@ -164,12 +179,44 @@ defmodule CoopGame.Model.Storage do
         Mnesia.match_object({@weapon_table, id, :_, :_, :_})
       end)
 
-    hd(weapon)
+    weapon_list=
+      weapon
+      |> hd()
+      |> Tuple.to_list
+      |> tl()
+
+    build_structure(%{}, @weapon_fields, weapon_list)
   end
 
   defp build_ok_response(player, character, weapon) do
-    IO.inspect(player, label: Player)
-    IO.inspect(character, label: Character)
-    IO.inspect(weapon, label: Weapon)
+    wep = %Weapon{
+      name: weapon.name,
+      min_dmg: weapon.min_dmg,
+      max_dmg: weapon.max_dmg
+    }
+
+    char = %Character{
+      lvl: character.lvl,
+      c_xp: character.c_xp,
+      m_xp: character.m_xp,
+      c_hp: character.c_hp,
+      m_hp: character.m_hp,
+      inventory: character.inventory,
+      weapon: wep
+    }
+
+    %Player{
+      name: player.name,
+      token: player.token,
+      joined_room: player.joined_room,
+      character: char
+    }
   end
+
+  defp build_structure(map, [], []), do: map
+  defp build_structure(map, key, value) do
+    map = Map.put(map, hd(key), hd(value))
+    build_structure(map, tl(key), tl(value))
+  end
+
 end

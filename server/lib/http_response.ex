@@ -4,6 +4,7 @@ defmodule CoopGame.HttpResponse do
   def match(msg) do
     case msg do
       "player_exists" -> player_already_exists()
+      "player_doesnt_exist" -> player_doesnt_exist()
       "reg_ok" -> register_ok()
       "login_ok" -> login_ok()
     end
@@ -31,6 +32,13 @@ defmodule CoopGame.HttpResponse do
     %{"type" => :ok,
       "http_code" => 200,
       "message" => "reg_ok"
+    }
+  end
+
+  defp player_doesnt_exist do
+    %{"type" => :error,
+      "http_code" => 404,
+      "message" => "player_doesnt_exist"
     }
   end
 end
